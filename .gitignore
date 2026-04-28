@@ -1,0 +1,21 @@
+# Build outputs
+out/
+build/
+cmake-build-*/
+
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.opendb
+*.sdf
+
+# VS Code
+.vscode/
+
+# CLion / JetBrains
+.idea/
+
+# OS
+Thumbs.db
+.DS_Store
