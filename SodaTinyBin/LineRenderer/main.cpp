@@ -8,7 +8,7 @@ constexpr size_t HEIGHT = 1024;
 
 using namespace Soda;
 
-std::vector<Line2i> CreateRadialLines(Framebuffer fb, Vec2i center, float radius, float step) {
+std::vector<Line2i> CreateRadialLines(FramebufferLegacy fb, Vec2i center, float radius, float step) {
     std::vector<Line2i> ret;
 
     int s = static_cast<int>(360.f / step);
@@ -48,22 +48,22 @@ std::vector<Line2i> CreateRadialLines(Framebuffer fb, Vec2i center, float radius
 
 int main(void) {
 
-    Framebuffer fb(WIDTH, HEIGHT);
+    FramebufferLegacy fb(WIDTH, HEIGHT);
 
     const auto lines = CreateRadialLines(fb, {fb.width / 2, fb.height / 2}, (fb.width + fb.height) / 4.f, .5f / 10);
 
-    Rasterizer::Clear(fb, Rgb8::Black);
+    LegacyRasterizer::Clear(fb, Rgb8::Black);
 
     for (const auto& l: lines) {
-        Rasterizer::DrawLine(fb, l, DrawLineMode::Naive);
+        LegacyRasterizer::DrawLine(fb, l, DrawLineMode::Naive);
     }
 
     WritePPM(fb, "naive.ppm");
 
-    Rasterizer::Clear(fb, Rgb8::Black);
+    LegacyRasterizer::Clear(fb, Rgb8::Black);
 
     for (const auto& l: lines) {
-        Rasterizer::DrawLine(fb, l, DrawLineMode::Bresenham);
+        LegacyRasterizer::DrawLine(fb, l, DrawLineMode::Bresenham);
     }
 
     WritePPM(fb, "bresenham.ppm");

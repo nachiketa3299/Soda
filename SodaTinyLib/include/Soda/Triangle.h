@@ -5,9 +5,11 @@
 namespace Soda {
 
 struct Triangle2i {
-    Vertex2i a;
-    Vertex2i b;
-    Vertex2i c;
+    Vertex2i a, b, c;
+};
+
+struct Triangle2f {
+    Vertex2f a, b, c;
 };
 
 }

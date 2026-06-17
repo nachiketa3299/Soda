@@ -6,8 +6,13 @@
 namespace Soda {
 
 struct Vertex2i {
-    Vec2i pos;
-    Rgb8 col;
+    Vec2i p;
+    Rgb8 c;
+};
+
+struct Vertex2f {
+    Vec2f p;
+    Color4f c;
 };
 
 }

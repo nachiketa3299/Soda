@@ -7,7 +7,8 @@ add_library(SodaTinyLib STATIC
     src/Soda/MathUtils.cpp
     src/Soda/Vec.cpp
     src/Soda/Line.cpp
-    src/Soda/PPM.cpp
+    src/Soda/IO.cpp
+    src/Soda/Fragment.cpp
 )
 
 target_include_directories(SodaTinyLib

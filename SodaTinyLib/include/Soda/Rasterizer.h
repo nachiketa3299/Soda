@@ -6,25 +6,34 @@
 #include "Soda/Color.h"
 #include "Soda/Triangle.h"
 
-#include <string>
-
 namespace Soda {
+
+class Rasterizer {
+
+public:
+explicit Rasterizer(Framebuffer& fb);
+
+void FillTriangle(const Triangle2f& t);
+
+private:
+    Framebuffer& target_;
+};
 
 enum class DrawLineMode {
     Naive,
     Bresenham
 };
 
-struct Rasterizer {
+struct LegacyRasterizer {
 
-static void PutPixel(Framebuffer& fb, const Vec2i& p, const Rgb8& c);
+static void PutPixel(FramebufferLegacy& fb, const Vec2i& p, const Rgb8& c);
 
-static void Clear(Framebuffer& fb, const Rgb8& c);
+static void Clear(FramebufferLegacy& fb, const Rgb8& c);
 
-static void DrawLine(Framebuffer& fb, const Vertex2i& v1, const Vertex2i& v2, DrawLineMode m);
-static void DrawLine(Framebuffer& fb, const Line2i& l, DrawLineMode m);
+static void DrawLine(FramebufferLegacy& fb, const Vertex2i& v1, const Vertex2i& v2, DrawLineMode m);
+static void DrawLine(FramebufferLegacy& fb, const Line2i& l, DrawLineMode m);
 
-static void DrawTriangle(Framebuffer& fb, const Triangle2i t);
+static void DrawTriangle(FramebufferLegacy& fb, const Triangle2i t);
 
 };
 

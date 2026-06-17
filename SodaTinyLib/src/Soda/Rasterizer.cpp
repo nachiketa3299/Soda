@@ -7,7 +7,56 @@
 
 namespace Soda {
 
-void Rasterizer::PutPixel(Framebuffer& fb, const Vec2i& p, const Rgb8& c) {
+Rasterizer::Rasterizer(Framebuffer& fb)
+    : target_ {fb} 
+{ }
+
+void Rasterizer::FillTriangle(const Triangle2f &t) {
+    Vec2i boundMin {
+        static_cast<int>(std::floor(std::max(0.f, std::min({ t.a.p.x, t.b.p.x, t.c.p.x })))),
+        static_cast<int>(std::floor(std::max(0.f, std::min({ t.a.p.y, t.b.p.y, t.c.p.y }))))
+    };
+    Vec2i boundMax {
+        static_cast<int>(std::ceil(std::min(static_cast<float>(target_.Width() - 1), std::max({ t.a.p.x, t.b.p.x, t.c.p.x })))),
+        static_cast<int>(std::ceil(std::min(static_cast<float>(target_.Height() - 1), std::max({ t.a.p.y, t.b.p.y, t.c.p.y })))),
+    };
+
+    float area2 = Edgef(t.a.p, t.b.p, t.c.p);
+
+    for (int x = boundMin.x; x <= boundMax.x; ++x) {
+        for (int y = boundMin.y; y <= boundMax.y; ++y) {
+            Vec2f center { x + .5f, y + .5f };
+
+            float w0 = Edgef(t.a.p, t.b.p, center);
+            float w1 = Edgef(t.b.p, t.c.p, center);
+            float w2 = Edgef(t.c.p, t.a.p, center);
+
+            bool isInside 
+                = (w0 >= 0 && w1 >= 0 && w2 >= 0)
+                || (w0 <= 0 && w1 <= 0 && w2 <= 0);
+            
+            if (!isInside) {
+                continue;
+            }
+
+            float alpha = w1 / area2;
+            float beta = w2 / area2;
+            float gamma = w0 / area2;
+
+            Color4f c = {
+                alpha * t.a.c.r + beta * t.b.c.r + gamma * t.c.c.r,
+                alpha * t.a.c.g + beta * t.b.c.g + gamma * t.c.c.g,
+                alpha * t.a.c.b + beta * t.b.c.b + gamma * t.c.c.b,
+                alpha * t.a.c.a + beta * t.b.c.a + gamma * t.c.c.a,
+            };
+
+            target_.Blend({ x, y }, c);
+        }
+    }
+}
+
+void LegacyRasterizer::PutPixel(FramebufferLegacy &fb, const Vec2i &p, const Rgb8 &c)
+{
     assert(0 <= p.x && p.x <= fb.width);
     assert(0 <= p.y && p.y <= fb.height);
 
@@ -18,7 +67,7 @@ void Rasterizer::PutPixel(Framebuffer& fb, const Vec2i& p, const Rgb8& c) {
     fb.buff[idx + 2] = c.b;
 }
 
-void Rasterizer::Clear(Framebuffer& fb, const Rgb8& c) {
+void LegacyRasterizer::Clear(FramebufferLegacy& fb, const Rgb8& c) {
     for (int h = 0; h < fb.height; ++h) {
         for (int w = 0; w < fb.width; ++w) {
             PutPixel(fb, {w, h}, c);
@@ -27,49 +76,51 @@ void Rasterizer::Clear(Framebuffer& fb, const Rgb8& c) {
 }
 
 void drawLineNaive(
-    Framebuffer& fb, 
+    FramebufferLegacy& fb, 
     const Vertex2i& v1, 
     const Vertex2i& v2
 ) {
-    int dx = v2.pos.x - v1.pos.x;
-    int dy = v2.pos.y - v1.pos.y;
+    int dx = v2.p.x - v1.p.x;
+    int dy = v2.p.y - v1.p.y;
 
     int step = std::max(std::abs(dx), std::abs(dy));
 
     for (int i = 0; i <= step; ++i) {
         float t = static_cast<float>(i) / static_cast<float>(step);
 
-        float x = v1.pos.x + dx * t;
-        float y = v1.pos.y + dy * t;
+        float x = v1.p.x + dx * t;
+        float y = v1.p.y + dy * t;
 
         int nx = static_cast<int>(std::floor(x));
         int ny = static_cast<int>(std::floor(y));
 
-        Rgb8 c = LerpRgb8(v1.col, v2.col, t);
-        Rasterizer::PutPixel(fb, {nx, ny}, c);
+        Rgb8 c = LerpRgb8(v1.c, v2.c, t);
+        LegacyRasterizer::PutPixel(fb, {nx, ny}, c);
     }
+
+    return;
 }
 
 void drawLineBresenham(
-    Framebuffer& fb, 
+    FramebufferLegacy& fb, 
     const Vertex2i& v1, 
     const Vertex2i& v2
 ) {
-    int x = v1.pos.x;
-    int y = v1.pos.y;
+    int x = v1.p.x;
+    int y = v1.p.y;
 
-    int dx =  std::abs(v2.pos.x - v1.pos.x);
-    int dy = -std::abs(v2.pos.y - v1.pos.y);
+    int dx =  std::abs(v2.p.x - v1.p.x);
+    int dy = -std::abs(v2.p.y - v1.p.y);
 
-    int sx = v1.pos.x < v2.pos.x ? 1 : -1;
-    int sy = v1.pos.y < v2.pos.y ? 1 : -1;
+    int sx = v1.p.x < v2.p.x ? 1 : -1;
+    int sy = v1.p.y < v2.p.y ? 1 : -1;
 
     int err = dx + dy;
 
     while (true) {
-        Rasterizer::PutPixel(fb, {x, y}, v1.col);
+        LegacyRasterizer::PutPixel(fb, {x, y}, v1.c);
 
-        if (x == v2.pos.x && y == v2.pos.y) {
+        if (x == v2.p.x && y == v2.p.y) {
             break;
         }
 
@@ -87,18 +138,18 @@ void drawLineBresenham(
     }
 }
 
-void Rasterizer::DrawLine(
-    Framebuffer& fb, 
+void LegacyRasterizer::DrawLine(
+    FramebufferLegacy& fb, 
     const Line2i& l, 
     DrawLineMode m
 ) {
-    Rasterizer::DrawLine(fb, l.s, l.e, m);
+    LegacyRasterizer::DrawLine(fb, l.s, l.e, m);
 
     return;
 }
 
-void Rasterizer::DrawLine(
-    Framebuffer& fb, 
+void LegacyRasterizer::DrawLine(
+    FramebufferLegacy& fb, 
     const Vertex2i& v1, 
     const Vertex2i& v2, 
     DrawLineMode m
@@ -112,35 +163,29 @@ void Rasterizer::DrawLine(
     return;
 }
 
-void Rasterizer::DrawTriangle(
-    Framebuffer& fb, 
+void LegacyRasterizer::DrawTriangle(
+    FramebufferLegacy& fb, 
     const Triangle2i t
 ) {
     Vec2i min = Vec2i {
-        std::min({ t.a.pos.x, t.b.pos.x, t.c.pos.x }),
-        std::min({ t.a.pos.y, t.b.pos.y, t.c.pos.y })
+        std::max(0, std::min({ t.a.p.x, t.b.p.x, t.c.p.x })),
+        std::max(0, std::min({ t.a.p.y, t.b.p.y, t.c.p.y }))
     };
 
     Vec2i max = Vec2i {
-        std::max({ t.a.pos.x, t.b.pos.x, t.c.pos.x }),
-        std::max({ t.a.pos.y, t.b.pos.y, t.c.pos.y })
+        std::min(std::max({ t.a.p.x, t.b.p.x, t.c.p.x }), fb.width - 1),
+        std::min(std::max({ t.a.p.y, t.b.p.y, t.c.p.y }), fb.height - 1)
     };
 
-    min.x = std::max(0, min.x);
-    min.y = std::max(0, min.y);
-
-    max.x = std::min(max.x, fb.width - 1);
-    max.y = std::min(max.y, fb.height - 1);
-
-    int area2 = Edge2i(t.a.pos, t.b.pos, t.c.pos);
+    float area2 = static_cast<float>(Edgei(t.a.p, t.b.p, t.c.p));
 
     for (int y = min.y; y <= max.y; ++y) {
         for (int x = min.x; x <= max.x; ++x) {
             Vec2i p { x, y };
 
-            int w0 = Edge2i(t.a.pos, t.b.pos, p);
-            int w1 = Edge2i(t.b.pos, t.c.pos, p);
-            int w2 = Edge2i(t.c.pos, t.a.pos, p);
+            int w0 = Edgei(t.a.p, t.b.p, p);
+            int w1 = Edgei(t.b.p, t.c.p, p);
+            int w2 = Edgei(t.c.p, t.a.p, p);
 
             bool isInside =
                 (w0 >= 0 && w1 >= 0 && w2 >= 0) ||
@@ -150,23 +195,13 @@ void Rasterizer::DrawTriangle(
                 continue;
             }
             
-            float alpha = w0 / static_cast<float>(area2);
-            float beta = w1 / static_cast<float>(area2);
-            float gamma = w2 / static_cast<float>(area2);
+            float alpha = w1 / area2;
+            float beta = w2 / area2;
+            float gamma = w0 / area2;
 
-            uint8_t r 
-                = alpha * t.a.col.r 
-                + beta * t.b.col.r 
-                + gamma * t.c.col.r;
-
-            uint8_t g
-                = alpha * t.a.col.g 
-                + beta * t.b.col.g 
-                + gamma * t.c.col.g;
-            uint8_t b 
-                = alpha * t.a.col.b
-                + beta * t.b.col.b
-                + gamma * t.c.col.b;
+            uint8_t r = alpha * t.a.c.r + beta * t.b.c.r + gamma * t.c.c.r;
+            uint8_t g = alpha * t.a.c.g + beta * t.b.c.g + gamma * t.c.c.g;
+            uint8_t b = alpha * t.a.c.b + beta * t.b.c.b + gamma * t.c.c.b;
 
             PutPixel(fb, p, { r, g, b });
         }

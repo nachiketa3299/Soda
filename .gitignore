@@ -5,9 +5,6 @@ build-release/
 # clangd index
 .cache/
 
-# Rendered output
-*.ppm
-
 # Visual Studio
 .vs/
 *.suo
