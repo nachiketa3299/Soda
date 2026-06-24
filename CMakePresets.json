@@ -37,6 +37,34 @@
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release"
             }
+        },
+        {
+            "name": "win-base",
+            "inherits": "soda-config-base",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "cl",
+                "CMAKE_CXX_COMPILER": "cl"
+            },
+            "condition": {
+                "type": "equals", "lhs": "${hostSystemName}", "rhs": "Windows"
+            }
+        },
+        {
+            "name": "win-debug",
+            "inherits": "win-base",
+            "binaryDir": "${sourceDir}/build",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "win-release",
+            "inherits": "win-base",
+            "binaryDir": "${sourceDir}/build-release",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
         }
     ],
     "buildPresets" : [
@@ -52,6 +80,20 @@
             "configurePreset": "mneo-release",
             "condition": {
                 "type": "equals", "lhs": "${hostSystemName}", "rhs": "Darwin"
+            }
+        },
+        {
+            "name": "win-debug",
+            "configurePreset": "win-debug",
+            "condition": {
+                "type": "equals", "lhs": "${hostSystemName}", "rhs": "Windows"
+            }
+        },
+        {
+            "name": "win-release",
+            "configurePreset": "win-release",
+            "condition": {
+                "type": "equals", "lhs": "${hostSystemName}", "rhs": "Windows"
             }
         }
     ]
