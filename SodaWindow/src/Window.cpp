@@ -70,7 +70,7 @@ bool Window::ShouldClose() const {
 }
 
 void Window::Present(const Framebuffer& fb) {
-    SDL_UpdateTexture(impl_->texture, nullptr, fb.Data(), fb.Width() * static_cast<int>(sizeof(Rgba8)));
+    SDL_UpdateTexture(impl_->texture, nullptr, fb.Color().Data(), fb.Width() * fb.Height() * static_cast<int>(sizeof(Rgba8)));
     SDL_RenderClear(impl_->renderer);
     SDL_RenderTexture(impl_->renderer, impl_->texture, nullptr, nullptr);
     SDL_RenderPresent(impl_->renderer);

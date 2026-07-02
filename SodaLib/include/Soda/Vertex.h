@@ -20,4 +20,26 @@ struct Vertex3f {
     Color4f c;
 };
 
+struct MeshVertex {
+    Vec3f pos;
+    Color4f col;
+};
+
+struct ClipVertex {
+    Vec4f pos;
+    Color4f col;
+};
+
+struct ScreenVertex {
+    Vec2f pos;
+    float depth;
+    Color4f col;
+};
+
+struct Fragment {
+    Vec2i pos;
+    float depth;
+    Color4f col;
+};
+
 }

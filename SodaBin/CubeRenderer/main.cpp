@@ -35,7 +35,7 @@ int main() {
         float omega = baseSpeed + amplitude * std::sin(2.f * pi * t / period);  // 항상 양수
         deg += omega * dt;                                                      // 적분
         auto mvp = Mat4f::Rotation(axis, DegreeToRadian(deg));
-        rt.DrawMesh(cube, mvp);
+        // rt.DrawMesh(cube, mvp);
     };
 
     app.Run(tick);

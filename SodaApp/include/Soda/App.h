@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Soda/Rasterizer.h"
+#include "Soda/Framebuffer.h"
 #include "Soda/Window.h"
 #include "Soda/Clock.h"
 

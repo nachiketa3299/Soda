@@ -4,8 +4,6 @@
 
 namespace Soda {
 
-struct Face {
-    uint32_t a, b, c;
-};
+struct Face { uint32_t a, b, c; };
 
 }

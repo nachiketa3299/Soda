@@ -10,7 +10,7 @@ void WritePPM(const Framebuffer& fb, const std::string& path) {
 
     out << "P6\n" << fb.Width() << " " << fb.Height() << "\n255\n";
 
-    const Rgba8* px = fb.Data();
+    const Rgba8* px = fb.Color().Data();
     const int count = fb.Width() * fb.Height();
     for (int i = 0; i < count; ++i) {
         const char rgb[3] = {
@@ -59,7 +59,7 @@ void WriteBMP(const Framebuffer& fb, const std::string& path) {
     u32(2835); u32(2835);
     u32(0); u32(0);
 
-    const Rgba8* px = fb.Data();
+    const Rgba8* px = fb.Color().Data();
     for (int y = h - 1; y >= 0; --y) {
         for (int x = 0; x < w; ++x) {
             const Rgba8& c = px[y * w + x];
@@ -71,10 +71,10 @@ void WriteBMP(const Framebuffer& fb, const std::string& path) {
     }
 }
 
-void WritePPM(FramebufferLegacy& fb, std::string name) {
+void WritePPM(Framebuffer& fb, std::string name) {
     std::ofstream out(name, std::ios::binary);
-    out << "P6\n" << fb.width << " " << fb.height << "\n255\n";
-    out.write(reinterpret_cast<const char*>(fb.buff.data()), fb.buff.size());
+    out << "P6\n" << fb.Width() << " " << fb.Height() << "\n255\n";
+    out.write(reinterpret_cast<const char*>(fb.Color().Data()), fb.Height() * fb.Width());
 }
 
 }

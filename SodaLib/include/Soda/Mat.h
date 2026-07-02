@@ -9,12 +9,18 @@ namespace Soda {
 
 // Row-Major
 struct Mat4f{
+    union {
+        std::array<float, 16> m {};
+    };
+
     constexpr inline float& operator[](int r, int c)       { return m[static_cast<std::size_t>(c + 4 * r)]; }
     constexpr inline float  operator[](int r, int c) const { return m[static_cast<std::size_t>(c + 4 * r)]; }
 
     Mat4f& operator*=(Mat4f oth);
     Mat4f& operator*=(float c);
     Mat4f& operator/=(float c);
+
+    static Mat4f LookAt(Vec3f eye, Vec3f target, Vec3f up);
 
     static Mat4f Translate(Vec3f t);
     static Mat4f Scale(Vec3f s);
@@ -23,7 +29,6 @@ struct Mat4f{
     static const Mat4f Identity;
     static const Mat4f Zero;
 
-    std::array<float, 16> m {};
 };
 
 inline Mat4f operator*(Mat4f l, Mat4f r) { return l *= r; }

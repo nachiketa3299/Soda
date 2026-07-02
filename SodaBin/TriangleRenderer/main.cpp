@@ -13,7 +13,7 @@ constexpr int WIDTH = 128;
 constexpr int HEIGHT = 128;
 
 int main() {
-    Framebuffer fb { WIDTH, HEIGHT, Color4f::Black };
+    FramebufferLegacy2 fb { WIDTH, HEIGHT, Color4f::Black };
     Rasterizer rt { fb };
 
     const float pi = std::numbers::pi_v<float>;

@@ -12,4 +12,8 @@ struct Triangle2f {
     Vertex2f a, b, c;
 };
 
+struct Triangle3f {
+    Vertex3f a, b, c;
+};
+
 }

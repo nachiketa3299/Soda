@@ -12,6 +12,8 @@ add_library(SodaLib STATIC
     src/Soda/Mat.cpp
     src/Soda/Mesh.cpp
     src/Soda/Face.cpp
+    include/Soda/Buffer.h
+    src/Soda/Buffer.cpp
 )
 
 target_include_directories(SodaLib

@@ -75,12 +75,13 @@ inline Vec3f Cross(Vec3f l, Vec3f r) {
 struct Vec4f {
     float x, y, z, w;
 
+    inline Vec4f operator-() const { return { -x, -y, -z, -w }; }
+
     Vec4f& operator+=(Vec4f oth);
     Vec4f& operator-=(Vec4f oth);
     Vec4f& operator*=(float c);
     Vec4f& operator/=(float c);
 
-    inline Vec4f operator-() const { return { -x, -y, -z, -w }; }
 };
 
 inline Vec4f operator+(Vec4f l, Vec4f r) { return l += r; }

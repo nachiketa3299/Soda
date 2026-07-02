@@ -50,6 +50,21 @@ Mat4f& Mat4f::operator/=(float c) {
     return *this;
 }
 
+Mat4f Mat4f::LookAt(Vec3f eye, Vec3f target, Vec3f up) {
+
+    Vec3f f = (target - eye).Normalized();
+    Vec3f r = Cross(f, up).Normalized();
+    Vec3f u = Cross(r, f);
+
+    Mat4f ret = Mat4f::Identity;
+
+    ret[0, 0] =  r.x; ret[0, 1] =  r.y; ret[0, 2] =  r.z; ret[0, 3] = Dot(-r, eye);
+    ret[1, 0] =  u.x; ret[1, 1] =  u.y; ret[1, 2] =  u.z; ret[1, 3] = Dot(-u, eye);
+    ret[2, 0] = -f.x; ret[2, 1] = -f.y; ret[2, 2] = -f.z; ret[2, 3] = Dot( f, eye);
+
+    return ret;
+}
+
 Mat4f Mat4f::Translate(Vec3f t) {
     Mat4f ret = Mat4f::Identity;
     ret[0, 3] = t.x;
